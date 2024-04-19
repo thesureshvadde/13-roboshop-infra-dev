@@ -1,0 +1,51 @@
+pipeline {
+    // agent any
+    agent { node { label 'AGENT-1' } }
+
+    stages {
+        stage('INIT') {
+            steps {
+                sh '''
+                    ls -ltr
+                    pwd
+                    cd 01-vpc
+                    terraform init
+                '''
+            }
+        }
+        stage('PLAN') {
+            steps {
+                sh '''
+                    ls -ltr
+                    pwd
+                    cd 01-vpc
+                    terraform plan
+                '''
+            }
+        }
+        stage('approve') {
+            steps {
+                    input "shall I Apply?"
+            }
+        }
+        stage('APPLY') {
+            steps {
+                sh '''
+                    cd 01-vpc
+                    terraform apply -auto-approve
+                '''
+            }
+        }
+    }
+    post { 
+        always { 
+            echo 'I will always run wheather job is success or failure'
+        }
+        success { 
+            echo 'I will run only when job is success'
+        }
+        failure { 
+            echo 'I will run only when job is failure'
+        }
+    }
+}
